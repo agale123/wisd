@@ -3,28 +3,16 @@ const WIDTH = 120;
 const HEIGHT = 80;
 
 /** Scale factor to convert to pixels. */
-const SCALE = 8;
+const SCALE = 7;
 
 /** Margin around the field. */
-const MARGIN = 20;
+const MARGIN = 40;
 
+/** Default width of lines on the field. */
 const STROKE_WIDTH = 2;
 
 /** Scale a point to the pixel location. */
 const norm = (x) => x * SCALE + MARGIN;
-
-/** Color an actor in a frame. */
-function actor(frame) {
-    if (frame['actor']) {
-        return frame['keeper'] ? 'indigo' : 'darkblue';
-    } else if (frame['teammate']) {
-        return  frame['keeper'] ? 'purple' : 'blue';
-    } else if (frame['keeper']) {
-        return 'orange';
-    } else {
-        return 'yellow';
-    }
-}
 
 // Create the svg element
 let svg = d3.select("#field").append("svg")
@@ -63,9 +51,12 @@ d3.csv("data/field.csv").then(lines => {
 });
 
 // Draw the passes after reading data
+// TODO(agale): Update to handle arbitrary matches
 Promise.all([d3.csv("data/passes.csv"), d3.csv("data/frames.csv")]).then(([passes, frames]) => {
     // Prosses passes
     const filteredPasses = passes.filter(p => {
+        // TODO(agale): Update to handle choosing the team
+        // TODO(agale): Update to handle filtering minutes
         return p.team === "Italy" && p.minute < 5;
     });
     // Process frames
@@ -78,13 +69,24 @@ Promise.all([d3.csv("data/passes.csv"), d3.csv("data/frames.csv")]).then(([passe
         acc[cur['event_uuid']] = JSON.parse(frameString);
         return acc;
     }, {});
-    // TODO(agale): Update pass start locations with more accurate frame data
     renderPasses(filteredPasses, processedFrames);
 });
 
+/** Color an actor in a frame. */
+function actor(frame) {
+    if (frame['actor']) {
+        return frame['keeper'] ? 'indigo' : 'darkblue';
+    } else if (frame['teammate']) {
+        return frame['keeper'] ? 'purple' : 'blue';
+    } else if (frame['keeper']) {
+        return 'orange';
+    } else {
+        return 'yellow';
+    }
+}
+
 /** Render a 360 frame. */
 function renderFrame(frame) {
-    console.log(frame);
     svg.append("g")
         .attr("class", "players")
         .selectAll("players")
@@ -106,17 +108,14 @@ function renderPasses(passes, frames) {
     // Store a mapping from index to d3 element
     const index = {};
 
-    // Store the index of the currently selected line
-    let selected = undefined;
-
     const stroke = (d) => d.outcome === "Complete" ? "blue" : "red";
 
     // Shared attributes between the lines
     const attrs = {
-        "x1": d => norm(d.location_x),
-        "y1": d => norm(d.location_y),
-        "x2": d => norm(d.location_end_x),
-        "y2": d => norm(d.location_end_y)
+        "x1": d => norm(d['location_x']),
+        "y1": d => norm(d['location_y']),
+        "x2": d => norm(d['location_end_x']),
+        "y2": d => norm(d['location_end_y'])
     };
 
     // Visual representation of the line
@@ -148,16 +147,25 @@ function renderPasses(passes, frames) {
             d3.select(index[i]).attr("stroke-width", STROKE_WIDTH);
         })
         .on("click", (d, i) => {
-            if (selected) {
-                d3.select(index[selected]).attr("stroke-dasharray", "");
-                clearFrame();
+            // Clear the previous slection
+            d3.select(".selected").attr("stroke-dasharray", "")
+                .attr("class", "");
+            clearFrame();
+            // Highlight the new line
+            d3.select(index[i]).attr("stroke-dasharray", "2,5")
+                .attr("class", "selected");
+            let frame = frames[d['id']];
+            if (!frame) {
+                // Just add the actor manually if the frame doesn't exist
+                frame = [
+                    {
+                        'location': [d['location_x'], d['location_y']],
+                        'actor': true,
+                        'keeper': d['position'] === 'Goalkeeper',
+                    },
+                ];
             }
-            selected = i;
-            d3.select(index[i]).attr("stroke-dasharray", "2,5");
-            const frame = frames[d['id']];
-            if (frame) {
-                renderFrame(frame);
-            }
+            renderFrame(frame);
 
             // TODO(agale): Render prettier details.
             document.getElementById("details").innerHTML = JSON.stringify(d);
