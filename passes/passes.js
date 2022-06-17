@@ -3,7 +3,7 @@ const WIDTH = 120;
 const HEIGHT = 80;
 
 /** Scale factor to convert to pixels. */
-const SCALE = 7;
+const SCALE = 6;
 
 /** Margin around the field. */
 const MARGIN = 40;
@@ -17,7 +17,8 @@ const norm = (x) => x * SCALE + MARGIN;
 // Create the svg element
 let svg = d3.select("#field").append("svg")
     .attr("width", WIDTH * SCALE + MARGIN * 2)
-    .attr("height", HEIGHT * SCALE + MARGIN * 2);
+    .attr("height", HEIGHT * SCALE + MARGIN * 2)
+    .style("border-radius", `${SCALE * 3}px`);
 
 // Green field turf
 svg.append("rect")
@@ -104,6 +105,20 @@ function clearFrame() {
     d3.select(".players").remove();
 }
 
+/** Render details for a specific pass. */
+function renderPassDetails(pass) {
+    // TODO(agale): Formatting polish on which entries we show
+    let text = "";
+    for (const [key, value] of Object.entries(pass)) {
+        if (value && !parseInt(value)) {
+            text = text.concat(`<p><strong>${key}</strong>: ${value}</p>`);
+        }
+    }
+    // TODO(agale): Compute more interesting stats like pass completion likelihood
+    document.getElementById("details").innerHTML = text;
+}
+
+/** Render all passes in the field. */
 function renderPasses(passes, frames) {
     // Store a mapping from index to d3 element
     const index = {};
@@ -166,8 +181,6 @@ function renderPasses(passes, frames) {
                 ];
             }
             renderFrame(frame);
-
-            // TODO(agale): Render prettier details.
-            document.getElementById("details").innerHTML = JSON.stringify(d);
+            renderPassDetails(d);      
         });
 }
