@@ -1,77 +1,34 @@
-/** Dimensions of the data. */
-const WIDTH = 120;
-const HEIGHT = 80;
+let selectedTimestamp = 1;
+let selectedMatchId = '3795107';
+let selectedTeam = 'Belgium';
 
-/** Scale factor to convert to pixels. */
-const SCALE = 6;
+let storedPasses;
+let storedFrames;
 
-/** Margin around the field. */
-const MARGIN = 40;
-
-/** Default width of lines on the field. */
-const STROKE_WIDTH = 2;
-
-/** Scale a point to the pixel location. */
-const norm = (x) => x * SCALE + MARGIN;
-
-// Create the svg element
-let svg = d3.select("#field").append("svg")
-    .attr("width", WIDTH * SCALE + MARGIN * 2)
-    .attr("height", HEIGHT * SCALE + MARGIN * 2)
-    .style("border-radius", `${SCALE * 3}px`);
-
-// Green field turf
-svg.append("rect")
-    .attr("x", 0)
-    .attr("y", 0)
-    .attr("width", WIDTH * SCALE + MARGIN * 2)
-    .attr("height", HEIGHT * SCALE + MARGIN * 2)
-    .attr("fill", "green");
-
-// Add center circle
-svg.append("circle")
-    .attr('cx', norm(WIDTH / 2))
-    .attr('cy', norm(HEIGHT / 2))
-    .attr('r', 10 * SCALE)
-    .attr("stroke-width", STROKE_WIDTH)
-    .attr("stroke", "white")
-    .attr("fill", "none");
-
-// Draw lines on field
-d3.csv("data/field.csv").then(lines => {
-    svg.selectAll("field")
-        .data(lines)
-        .enter()
-        .append("line")
-        .attr("x1", d => norm(d.x1))
-        .attr("y1", d => norm(d.y1))
-        .attr("x2", d => norm(d.x2))
-        .attr("y2", d => norm(d.y2))
-        .attr("stroke-width", STROKE_WIDTH)
-        .attr("stroke", "white");
-});
-
-// Draw the passes after reading data
-// TODO(agale): Update to handle arbitrary matches
-Promise.all([d3.csv("data/passes.csv"), d3.csv("data/frames.csv")]).then(([passes, frames]) => {
-    // Prosses passes
-    const filteredPasses = passes.filter(p => {
-        // TODO(agale): Update to handle choosing the team
-        // TODO(agale): Update to handle filtering minutes
-        return p.team === "Italy" && p.minute < 5;
+/** Load the data for a match and then render the passes. */
+function loadMatch() {
+    clearPasses();
+    Promise.all([
+        d3.csv(`data/passes/${selectedMatchId}.csv`),
+        d3.csv(`data/frames/${selectedMatchId}.csv`)
+    ]).then(([passes, frames]) => {
+        // Process frames to use proper JSON quotes and booleans
+        storedFrames = frames.reduce((acc, cur) => {
+            const frameString = cur['freeze_frame']
+                .replaceAll("'", '"')
+                .replaceAll("True", "true")
+                .replaceAll("False", "false")
+                .replaceAll("None", "false");
+            acc[cur['event_uuid']] = JSON.parse(frameString);
+            return acc;
+        }, {});
+        storedPasses = passes;
+        renderPasses();
     });
-    // Process frames
-    const processedFrames = frames.reduce((acc, cur) => {
-        // Use proper JSON quotes and booleans
-        const frameString = cur['freeze_frame']
-            .replaceAll("'", '"')
-            .replaceAll("True", "true")
-            .replaceAll("False", "false");
-        acc[cur['event_uuid']] = JSON.parse(frameString);
-        return acc;
-    }, {});
-    renderPasses(filteredPasses, processedFrames);
-});
+}
+
+// Initial call to load match data.
+loadMatch();
 
 /** Color an actor in a frame. */
 function actor(frame) {
@@ -118,8 +75,26 @@ function renderPassDetails(pass) {
     document.getElementById("details").innerHTML = text;
 }
 
+/** Clear all passes from the frame. */
+function clearPasses() {
+    d3.select(".passes").remove();
+    d3.select(".passesTarget").remove();
+    clearFrame();
+    document.getElementById("details").innerText =
+        'Select a game and team to explore and analyze passes. Filter to a see passes from certain ' +
+        'minutes of the game. Click an individual pass to see detailed stats about it and positioning ' +
+        'of players at that moment.';
+}
+
 /** Render all passes in the field. */
-function renderPasses(passes, frames) {
+function renderPasses() {
+    clearPasses();
+
+    // Filter by team and timestamp
+    const passes = storedPasses.filter(p => {
+        return p.team === selectedTeam && selectedTimestamp - 1 <= p.minute && p.minute < selectedTimestamp + 4;
+    });
+
     // Store a mapping from index to d3 element
     const index = {};
 
@@ -135,6 +110,7 @@ function renderPasses(passes, frames) {
 
     // Visual representation of the line
     svg.append("g")
+        .attr("class", "passes")
         .selectAll("passes")
         .data(passes)
         .enter()
@@ -148,6 +124,7 @@ function renderPasses(passes, frames) {
         });
     // Larger target for mouseover and click events
     svg.append("g")
+        .attr("class", "passesTarget")
         .selectAll("passesTarget")
         .data(passes)
         .enter()
@@ -169,7 +146,7 @@ function renderPasses(passes, frames) {
             // Highlight the new line
             d3.select(index[i]).attr("stroke-dasharray", "2,5")
                 .attr("class", "selected");
-            let frame = frames[d['id']];
+            let frame = storedFrames[d['id']];
             if (!frame) {
                 // Just add the actor manually if the frame doesn't exist
                 frame = [
@@ -181,6 +158,6 @@ function renderPasses(passes, frames) {
                 ];
             }
             renderFrame(frame);
-            renderPassDetails(d);      
+            renderPassDetails(d);
         });
 }
