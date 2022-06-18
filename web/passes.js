@@ -69,6 +69,7 @@ const RELEVANT_KEYS = [
     'position',
     'recipient_name',
     'play_pattern',
+    'outcome',
     'height',
     'body_part',
     'under_pressure',

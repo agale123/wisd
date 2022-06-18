@@ -34,3 +34,13 @@ data. The web directory contains everything needed to serve the application.
     ├── passes.html
     └── passes.js
 ```
+
+## Developing locally
+
+To deploy the web application, change into the web directory and run:
+
+```
+python -m http.server
+```
+
+The application will be available at http://localhost:8000
