@@ -70,6 +70,7 @@ const RELEVANT_KEYS = [
     'recipient_name',
     'play_pattern',
     'outcome',
+    'likelihood',
     'height',
     'body_part',
     'under_pressure',
@@ -81,10 +82,11 @@ function renderPassDetails(pass) {
     let text = "";
     for (const key of RELEVANT_KEYS) {
         const value = pass[key];
-        if (value && !parseInt(value)) {
+        if (!!value) {
             let formattedKey = key.replace('_', ' ');
             formattedKey = formattedKey.charAt(0).toUpperCase() + formattedKey.slice(1);
-            text = text.concat(`<p><strong>${formattedKey}</strong>: ${value}</p>`);
+            let formattedValue = parseFloat(value) ? parseFloat(value).toFixed(3) : value;
+            text = text.concat(`<p><strong>${formattedKey}</strong>: ${formattedValue}</p>`);
         }
     }
     // TODO(agale): Compute more interesting stats like pass completion likelihood
