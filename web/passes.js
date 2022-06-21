@@ -68,6 +68,8 @@ const RELEVANT_KEYS = [
     'player',
     'position',
     'recipient_name',
+    'period',
+    'timestamp',
     'play_pattern',
     'outcome',
     'likelihood',
@@ -85,7 +87,15 @@ function renderPassDetails(pass) {
         if (!!value) {
             let formattedKey = key.replace('_', ' ');
             formattedKey = formattedKey.charAt(0).toUpperCase() + formattedKey.slice(1);
-            let formattedValue = parseFloat(value) ? parseFloat(value).toFixed(3) : value;
+            if (formattedKey === 'Recipient name') {
+                formattedKey = 'Recipient';
+            }
+            let formattedValue = value;
+            if (key === 'likelihood') {
+                formattedValue = parseFloat(value).toFixed(3); 
+            } else if(key === 'timestamp') {
+                formattedValue = formattedValue.substring(3);
+            }
             text = text.concat(`<p><strong>${formattedKey}</strong>: ${formattedValue}</p>`);
         }
     }
