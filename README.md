@@ -17,25 +17,32 @@ data. The web directory contains everything needed to serve the application.
 .
 ├── README.md
 ├── notebooks
-│   ├── clean.ipynb
-│   └── process.ipynb
+│   ├── basic.ipynb: Used to preliminarily explore the data
+│   ├── clean.ipynb: Prototype how to clean an individual match
+│   ├── process.ipynb: Process and save cleaned data for all 
+│   ├── xp_clean.py: Abstracted out helpers to clean data for the xp model
+│   ├── xp.ipynb: Calculate xP model for all games
+│   └── xp_fawsl.ipynb: Apply the model calculated for the Euros to FAWSL data
 └── web
     ├── data
-    │   ├── field.csv
-    │   ├── frames
+    │   ├── field.csv: Coordinates of all lines needed to draw the soccer pitch
+    |   ├── matches.csv: List of all matches in the Euros
+    |   ├── xp.csv: Calculated xp for all passes
+    │   ├── frames: Cleaned 360 frames for passes by game
     │   │   └── *.csv
-    │   ├── matches.csv
-    │   └── passes
+    │   └── passes: Cleaned pass data by game
     │       └── *.csv
-    ├── field.js
     ├── images
     │   └── favicon.ico
-    ├── oninput.js
-    ├── passes.html
-    └── passes.js
+    ├── field.js: Create the svg and render the field
+    ├── oninput.js: Handle input events and updating state in response
+    ├── index.html: Entrypoint for the web application
+    └── passes.js: Read in pass data and render it to the field
 ```
 
 ## Developing locally
+
+### Web application
 
 To deploy the web application, change into the web directory and run:
 
@@ -44,3 +51,14 @@ python -m http.server
 ```
 
 The application will be available at http://localhost:8000
+
+### Jupyter notebooks
+
+To run the Python notebooks locally, run:
+
+```
+jupyter notebook
+```
+
+And then go to the provided webpage to run the notebooks. The output of the
+notebooks can be previewed through this GitHub repository.
