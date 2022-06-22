@@ -73,6 +73,7 @@ const RELEVANT_KEYS = [
     'play_pattern',
     'outcome',
     'likelihood',
+    'passing_accuracy',
     'height',
     'body_part',
     'under_pressure',
@@ -92,7 +93,7 @@ function renderPassDetails(pass) {
             }
             let formattedValue = value;
             if (key === 'likelihood') {
-                formattedValue = parseFloat(value).toFixed(3); 
+                formattedValue = parseFloat(value).toFixed(2); 
             } else if(key === 'timestamp') {
                 formattedValue = formattedValue.substring(3);
             }

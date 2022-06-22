@@ -36,6 +36,7 @@ function handleTimestamp(value) {
 
 /** Reset the timestamp slider to default values. */
 function clearTimestamp() {
+    selectedTimestamp = 1;
     document.getElementById("timestamp-input").max = 86;
     document.getElementById("timestamp-input").value = 1;
     document.getElementById("timestamp-label").innerText = `Minutes: 1'-5'`;
