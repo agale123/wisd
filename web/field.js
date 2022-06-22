@@ -50,3 +50,20 @@ d3.csv("data/field.csv").then(lines => {
         .attr("stroke-width", STROKE_WIDTH)
         .attr("stroke", "white");
 });
+
+// Marker for line arrows
+function drawArrow(color) {
+    svg.append("svg:defs").append("svg:marker")
+        .attr("id", `arrow-${color}`)
+        .attr("viewBox", "0 -16 32 32")
+        .attr("refX", 10)
+        .attr("markerUnits", "userSpaceOnUse")
+        .attr("markerWidth", 16)
+        .attr("markerHeight", 16)
+        .attr("orient", "auto")
+        .attr("fill", color)
+        .append("svg:path")
+        .attr("d", "M0,-16L32,0L0,16");
+}
+drawArrow("red");
+drawArrow("blue");

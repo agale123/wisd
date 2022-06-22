@@ -154,6 +154,7 @@ function renderPasses() {
         .attr("stroke-width", STROKE_WIDTH)
         .attr("stroke-linecap", "round")
         .attr("stroke", d => stroke(d))
+        .attr("marker-end", d => `url(#arrow-${stroke(d)})`)
         .each(function (_, i) {
             index[i] = this;
         });
