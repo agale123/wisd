@@ -1,5 +1,14 @@
 # Pass Analyzer
 
+ ![Passes rendered on a field with details about a pass](/screenshot.png)
+
+## Deployed application
+
+The deployed version of this application can be found at:
+https://wisd-354300.uw.r.appspot.com/
+
+## Description
+
 The goal of this project is to build a web application that allows the user to
 analyze passes during key moments in a game. After selecting a match and team
 to focus on, you can use the slider to select a 5 minute interval to highlight.
