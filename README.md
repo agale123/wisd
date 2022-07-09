@@ -136,6 +136,18 @@ I then used cross validation to tune the parameters that brought the accuracy
 to `0.896` without much change in the confusion matrix. When built on the full
 dataset, the resulting accuracy of the model was `0.900`.
 
+### Application to FAWSL
+
+After building the model, I was curious how specific it was to that particular
+tournament. I used data from the 2020/2021 FAWSL season and calculated the model
+accuracy in predicting whether those passes are completed. The model had an 
+accuracy of `0.832` which is much worse than what we saw on the men's Euros,
+but not completely different. These two sets of games are also quite different
+because it is women's instead of men's and club play instead of an international
+tournament. To get the best results, a model would likely need to be built on
+a more similar set of data. So for the Women's Euros it would make sense to build
+the model on either the previous Euros or the Women's Champions League.
+
 ## Directory structure
 
 There is a notebooks directory with Jupyter notebooks used to explore and clean
