@@ -14,7 +14,7 @@ Here is a screenshot of what the application looks like:
 All data for this application comes from StatsBomb through the `statsbombpy`
 Python library.
 
-![StatsBomb logo](/web/images/StatsBomb.jpg)
+![StatsBomb logo](/web/images/StatsBomb.jpg =200x)
 
 ## Description
 
